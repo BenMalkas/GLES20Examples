@@ -1,4 +1,4 @@
 GLES20
 ======
 
-OpenGL examples on Android.
+OpenGL ES 2.0 examples on Android.
