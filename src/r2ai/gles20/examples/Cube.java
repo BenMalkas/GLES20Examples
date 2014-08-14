@@ -45,9 +45,13 @@ public class Cube {
 	private int mUMVPMatrix;
 	private int mUTexture;
 	
+	private int mVerticesCount;
+	
 	public Cube() {}
 	
 	public void init(CubeBuffers cubeBuffers, String vertexShader, String fragmentShader) {
+		
+		mVerticesCount = cubeBuffers.mCubeVertices.length / 3;
 		
 		mVertexShaderSrc = vertexShader;
 		mFragmentShaderSrc = fragmentShader;
@@ -104,7 +108,7 @@ public class Cube {
 	    Matrix.multiplyMM(mMVPMatrix, 0, viewProjectionMatrix, 0, mModelMatrix, 0);
 		GLES20.glUniformMatrix4fv(mUMVPMatrix, 1, false, mMVPMatrix, 0);
 		
-		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36/*CubeBuffers.mCubeVertices.length / 3*/);
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, mVerticesCount);
 	
 	}
 	

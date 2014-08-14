@@ -21,7 +21,6 @@ import javax.microedition.khronos.opengles.GL10;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
@@ -47,6 +46,9 @@ public class CubeMapActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		// mLayout will contain the GLSurfaceView and the TextView
+		// mFpsView
 		mLayout = new FrameLayout(this);
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
@@ -61,8 +63,6 @@ public class CubeMapActivity extends Activity {
 		mSurfaceView.setRenderer(mRenderer);
 
 		mSurfaceView.setLayoutParams(params);
-
-		// mSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 		
 		mLayout.addView(mSurfaceView);
 		
@@ -70,6 +70,8 @@ public class CubeMapActivity extends Activity {
 		mFpsView.setTextColor(Color.WHITE);
 		mFpsView.setBackgroundColor(Color.DKGRAY);
 		
+		// framelayout child views are drawn on top of each other, with the
+		// most recently added at the top
 		mLayout.addView(mFpsView, new FrameLayout.LayoutParams(
 				FrameLayout.LayoutParams.WRAP_CONTENT,
 				FrameLayout.LayoutParams.WRAP_CONTENT, 
@@ -78,8 +80,9 @@ public class CubeMapActivity extends Activity {
 		setContentView(mLayout);
 	}
 	
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onPause()
+	/* 
+	 * GLSurfaceView require to call its onPause/onResume method to manage its 
+	 * rendering thread and the OpenGL display.
 	 */
 	@Override
 	protected void onPause() {
@@ -87,9 +90,6 @@ public class CubeMapActivity extends Activity {
 		mSurfaceView.onPause();
 	}
 	
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onResume()
-	 */
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -98,11 +98,11 @@ public class CubeMapActivity extends Activity {
 
 	public class MyGLSurfaceView extends GLSurfaceView {
 
-		Paint paint;
-
 		public MyGLSurfaceView(Context context) {
 			super(context);
-		    //super.setEGLConfigChooser(new MultisampleConfigChooser());
+			// RGBA_8888 color buffer, 16bits depth buffer
+			// and 8bits stencil buffer
+		    super.setEGLConfigChooser(8, 8, 8, 8, 16, 8);
 			setEGLContextClientVersion(2);
 			setPreserveEGLContextOnPause(true);
 		}
@@ -188,17 +188,16 @@ public class CubeMapActivity extends Activity {
 		 */
 		@Override
 		public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-	        // Set the background frame color
+	        // Set the color buffer clear color.
 	        GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	        
+	        // Enable the depth buffer so that OpenGL take into account if an object occlude
+	        // another and not just draw objects over each others according to draw functions call order.
 	        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 	        GLES20.glDepthFunc(GLES20.GL_LESS);
 	        
-	        // GLES20.glEnable(GLES20.GL_CULL_FACE);
-	        
-	        GLES20.glEnable(GLES20.GL_BLEND);
-	        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-	        
+	        // Load all vertex data (positions, texture coordinates, normals 
+	        // and textures) in video ram.
 	        mCubeBuffers = new CubeBuffers();
 	        mCubeBuffers.init(mContext);
 	        
@@ -207,6 +206,9 @@ public class CubeMapActivity extends Activity {
 	        
 	        mInnerCube.init(mCubeBuffers, mVertexShaderSrc, mFragmentShaderSrc1);
 	        mOuterCube.init(mCubeBuffers, mVertexShaderSrc, mFragmentShaderSrc2);
+	        
+	        // This is not needed anymore so application memory can be retrieved.
+	        mCubeBuffers = null;
 
 		}
 
@@ -222,12 +224,14 @@ public class CubeMapActivity extends Activity {
 			GLES20.glViewport(0, 0, width, height);
 
 			float aspectRatio = (float) width / (float) height;
-			// Matrix.frustumM(mProjectionMatrix,  0, -aspectRatio, aspectRatio, -1f, 1f, 1f, 100f);
 			Matrix.perspectiveM(mProjectionMatrix, 0, 90.0f, aspectRatio, 0.1f, 1000f);
+			
+			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT 
+					| GLES20.GL_DEPTH_BUFFER_BIT);
 		}
 		
-		long runTime = 0;
-		long start = 0;
+		private long runTime = 0;
+		private long start = 0;
 		
 		/*
 		 * (non-Javadoc)
@@ -238,8 +242,8 @@ public class CubeMapActivity extends Activity {
 		 */
 		@Override
 		public void onDrawFrame(GL10 gl) {
-			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT 
-					| GLES20.GL_DEPTH_BUFFER_BIT);
+			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT
+				| GLES20.GL_DEPTH_BUFFER_BIT);
 
 			long now = System.currentTimeMillis();
 			
@@ -253,6 +257,7 @@ public class CubeMapActivity extends Activity {
 			Matrix.multiplyMM(vp, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
 			// complete rotation every 4 seconds
+			Matrix.setIdentityM(mInnerCube.mModelMatrix, 0);
 			final float angle = 0.09F * (float) (runTime % 4000L);
 		    Matrix.setRotateM(mInnerCube.mModelMatrix, 0, angle, 1.0F, 1.0F, 1.0f);
 			
