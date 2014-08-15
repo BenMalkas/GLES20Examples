@@ -31,7 +31,6 @@ import android.opengl.GLUtils;
  * Set up all the per vertex data for a cube (vertices positions, normals, colors
  * and texture coordinates for a cube map), plus load the cube map texture.
  * 
- * @author r2ai
  */
 public class CubeBuffers {
 	

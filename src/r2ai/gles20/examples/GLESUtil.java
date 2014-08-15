@@ -18,10 +18,6 @@ package r2ai.gles20.examples;
 import android.opengl.GLES20;
 import android.util.Log;
 
-/**
- * @author r2ai
- *
- */
 public class GLESUtil {
 
 	public static final String TAG = "GLESUtil";

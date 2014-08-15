@@ -15,18 +15,11 @@
  */
 package r2ai.gles20.examples;
 
-import java.nio.IntBuffer;
-
 import r2ai.gles20.examples.CubeBuffers;
 import r2ai.gles20.examples.GLESUtil;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Log;
 
-/**
- * @author r2ai
- *
- */
 public class Cube {
 	
 	private int mVertexShaderHandle;
@@ -61,9 +54,6 @@ public class Cube {
 		mFragmentShaderHandle = GLESUtil.loadShader(GLES20.GL_FRAGMENT_SHADER, mFragmentShaderSrc);
 
 		mProgramHandle = GLESUtil.createProgram(mVertexShaderHandle, mFragmentShaderHandle);
-		IntBuffer params = IntBuffer.allocate(1);
-		GLES20.glGetProgramiv(mProgramHandle, GLES20.GL_ACTIVE_UNIFORMS, params);
-		Log.d("CubeMapActivity","uniform count " + params.get(0));
 		
 		Matrix.setIdentityM(mModelMatrix,0);
 		Matrix.setIdentityM(mMVPMatrix,0);
