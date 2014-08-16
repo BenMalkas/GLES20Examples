@@ -15,6 +15,8 @@
  */
 package r2ai.gles20.examples;
 
+import java.lang.ref.WeakReference;
+
 import r2ai.gles20.examples.SimpleRenderer.FpsListener;
 import android.app.Activity;
 import android.content.Context;
@@ -60,6 +62,7 @@ public class CubeMapActivity extends Activity implements FpsListener {
 		mFpsView = new TextView(this);
 		mFpsView.setTextColor(Color.WHITE);
 		mFpsView.setBackgroundColor(Color.DKGRAY);
+		mFpsView.setEms(3);
 
 		// framelayout child views are drawn on top of each other, with the
 		// most recently added at the top
@@ -86,19 +89,32 @@ public class CubeMapActivity extends Activity implements FpsListener {
 		super.onResume();
 		mSurfaceView.onResume();
 	}
+	
+	public static class MyRunnable implements Runnable {
+
+		WeakReference<CubeMapActivity> activity;
+		int fps;
+		
+		public MyRunnable(CubeMapActivity activity, int fps) {
+			this.activity = new WeakReference<CubeMapActivity>(activity);
+			this.fps = fps;
+		}
+		
+		@Override
+		public void run() {
+			activity.get().mFpsView.setText(Integer.toString(fps));
+		}
+		
+	}
+	
+	private final MyRunnable r = new MyRunnable(this,0);
 
 	public void setFps(final int fps) {
-		runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				mFpsView.setText(Integer.toString(fps));
-			}
-				
-		});
+		r.fps = fps;
+		runOnUiThread(r);
 	}
 
-	public class MyGLSurfaceView extends GLSurfaceView {
+	public static class MyGLSurfaceView extends GLSurfaceView {
 
 		public MyGLSurfaceView(Context context) {
 			super(context);

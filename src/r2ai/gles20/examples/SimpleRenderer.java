@@ -124,10 +124,6 @@ public class SimpleRenderer implements Renderer {
         
         mInnerCube.init(mCubeBuffers, mVertexShaderSrc, mFragmentShaderSrc1);
         mOuterCube.init(mCubeBuffers, mVertexShaderSrc, mFragmentShaderSrc2);
-        
-        // This is not needed anymore so application memory can be retrieved.
-        mCubeBuffers = null;
-        System.gc();
 	}
 
 	/*
