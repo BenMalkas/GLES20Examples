@@ -18,6 +18,10 @@ package r2ai.gles20.examples;
 import android.opengl.GLES20;
 import android.util.Log;
 
+/**
+ * Classic OpenGL ES 2+ helper class to load and compile shaders and display
+ * possible shaders errors.
+ */
 public class GLESUtil {
 
 	public static final String TAG = "GLESUtil";

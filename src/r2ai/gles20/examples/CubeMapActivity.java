@@ -27,6 +27,11 @@ import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+/**
+ * CubeMapActivty is the main activity. It's view is composed of a TextView
+ * displaying the current fps and a GLSurfaceView containing an OpenGL renderer.
+ * Both views are contained in a FrameLayout.
+ */
 public class CubeMapActivity extends Activity implements FpsListener {
 
 	@SuppressWarnings("unused")
@@ -76,7 +81,7 @@ public class CubeMapActivity extends Activity implements FpsListener {
 
 	/*
 	 * GLSurfaceView require to call its onPause/onResume method to manage its
-	 * rendering thread and the OpenGL display.
+	 * rendering thread and the OpenGL display according to Android doc.
 	 */
 	@Override
 	protected void onPause() {
@@ -90,6 +95,8 @@ public class CubeMapActivity extends Activity implements FpsListener {
 		mSurfaceView.onResume();
 	}
 	
+	// Just a little static inner class to not allocate a runnable every time the
+	// fps is updated.
 	public static class MyRunnable implements Runnable {
 
 		WeakReference<CubeMapActivity> activity;
@@ -121,8 +128,8 @@ public class CubeMapActivity extends Activity implements FpsListener {
 			// RGBA_8888 color buffer, 16bits depth buffer
 			// and 8bits stencil buffer
 			super.setEGLConfigChooser(8, 8, 8, 8, 16, 8);
+			// request an OpenGL ES 2.0 context
 			setEGLContextClientVersion(2);
-			setPreserveEGLContextOnPause(true);
 		}
 
 	}

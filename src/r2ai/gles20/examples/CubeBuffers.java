@@ -92,6 +92,7 @@ public class CubeBuffers {
 			0.5F, -0.5F, -0.5F,
 	};
 	
+	// not used here in the shaders but shows how to
 	private float[] mCubeNormals = {
 			0F, 0F, 1.0F,
 			0F, 0F, 1.0F,

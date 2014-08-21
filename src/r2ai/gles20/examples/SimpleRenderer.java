@@ -23,6 +23,10 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.opengl.GLSurfaceView.Renderer;
 
+/**
+ * SimpleRenderer implements the OpenGL renderer.
+ * The scene is set once in onSurfaceCreated and onDrawFrame is called continuously.
+ */
 public class SimpleRenderer implements Renderer {
 	
 	public static interface FpsListener {
@@ -89,7 +93,9 @@ public class SimpleRenderer implements Renderer {
 			+ "gl_FragColor = v_color; \n" 
 			+ "} \n";
 	
+	// camera matrix
 	private float[] mViewMatrix = new float[16];
+	// projection matrix
 	private float[] mProjectionMatrix = new float[16];
 
 	public SimpleRenderer(Context context) {
@@ -138,14 +144,15 @@ public class SimpleRenderer implements Renderer {
 		GLES20.glViewport(0, 0, width, height);
 
 		float aspectRatio = (float) width / (float) height;
+		// set the projection as a classic perspective projection
 		Matrix.perspectiveM(mProjectionMatrix, 0, 90.0f, aspectRatio, 0.1f, 1000f);
-		
-		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT 
-				| GLES20.GL_DEPTH_BUFFER_BIT);
 	}
 	
+	// how long the animation has been running
 	private long elapsedTime = 0;
+	// when it started
 	private long startTime = 0;
+	// view-projection matrix
 	private float[] vp = new float[16];
 	
 	/*
@@ -182,7 +189,9 @@ public class SimpleRenderer implements Renderer {
 	    mInnerCube.draw(vp);
 	    
 	    Matrix.setIdentityM(mOuterCube.mModelMatrix, 0);
+	    // reverse rotation sense
 	    Matrix.setRotateM(mOuterCube.mModelMatrix, 0, -angle, 0F, 1.0F, 0f);
+	    // set the outer cube to be 4 times bigger so it can contains the inner cube
 	    Matrix.scaleM(mOuterCube.mModelMatrix, 0, 4f, 4f, 4f);
 	    
 	    mOuterCube.draw(vp);
